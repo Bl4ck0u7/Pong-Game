@@ -1,2 +1,0 @@
-C:\Users\Kade\Documents\Visual Studio 2015\Projects\Pong\Pong\PongContent\obj\x86\Debug\PongContent.contentprojResolveAssemblyReference.cache
-C:\Users\Stefan\Desktop\Pong\Pong-Game\Pong\PongContent\obj\x86\Debug\PongContent.contentprojResolveAssemblyReference.cache

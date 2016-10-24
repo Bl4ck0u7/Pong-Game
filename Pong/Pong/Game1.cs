@@ -32,6 +32,9 @@ namespace Pong
         int lTime;
         int rTime;
         SpriteFont score;
+        SoundEffect low;
+        SoundEffect high;
+        SoundEffect win;
 
         public Game1()
         {
@@ -61,6 +64,7 @@ namespace Pong
             base.Initialize();
             lTime = 0;
             rTime = 0;
+            
         }
 
         /// <summary>
@@ -73,6 +77,9 @@ namespace Pong
             spriteBatch = new SpriteBatch(GraphicsDevice);
             white = this.Content.Load<Texture2D>("square");
             score = this.Content.Load<SpriteFont>("SpriteFont1");
+            low = this.Content.Load<SoundEffect>("low");
+            high = this.Content.Load<SoundEffect>("high");
+            win = this.Content.Load<SoundEffect>("highest");
 
             // TODO: use this.Content to load your game content here
         }
@@ -101,6 +108,7 @@ namespace Pong
             KeyboardState kb = Keyboard.GetState();
 
             if (ball.Intersects(lPad)){
+                high.Play();
                 if (ball.X <= lPad.X+lPad.Width-5) {
                     yS *= -1;
                     //lTime = 15;
@@ -117,6 +125,7 @@ namespace Pong
             }
 
             if (ball.Intersects(rPad)){
+                high.Play();
                 if (ball.X+ball.Width >= rPad.X+5) {
                     yS *= -1;
                     //rTime = 15;
@@ -134,25 +143,26 @@ namespace Pong
 
             if (kb.IsKeyDown(Keys.Down) && rPad.Y+rPad.Height < height && rTime <= 0)
             {
-                rPad.Y += 4;
+                rPad.Y += 6;
             }
             if (kb.IsKeyDown(Keys.Up) && rPad.Y > 0 && rTime <= 0)
             {
-                rPad.Y-= 4;
+                rPad.Y-= 6;
             }
             if (kb.IsKeyDown(Keys.S) && lPad.Y + lPad.Height < height && lTime <= 0)
             {
-                lPad.Y+= 4;
+                lPad.Y+= 6;
             }
             if (kb.IsKeyDown(Keys.W) && lPad.Y > 0 && lTime <= 0)
             {
-                lPad.Y-= 4;
+                lPad.Y-= 6;
             }
 
 
 
             if(ball.X+ball.Width <= 0 || ball.X >= width)
             {
+                win.Play();
                 if (ball.X >= width)
                 {
                     leftScore++;
@@ -160,23 +170,27 @@ namespace Pong
                 {
                     rightScore++;
                 }
+                
                 Random r = new Random();
                 if (r.Next(2) == 0)
                 {
                     xS = r.Next(5) + 3;
-                    yS = r.Next(3) + 3;
+                    yS = r.Next(4) + 4;
+                    
                 }else
                 {
                     xS = (r.Next(5) + 3) * -1;
-                    yS = r.Next(3) + 3;
+                    yS = r.Next(4) + 4;
+                    
                 }
-                
                 ball.X = width / 2 - 10;
                 ball.Y = r.Next(height-40) +20;
+                
             }
 
             if (ball.Y <= 0 || ball.Y+ball.Height >= height)
             {
+                low.Play();
                 yS *= -1;
             }
             ball.X += xS;
