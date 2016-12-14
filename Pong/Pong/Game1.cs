@@ -9,13 +9,15 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 
-namespace Pong
+namespace PongPlay
 {
     /// <summary>
     /// This is the main type for your game
     /// </summary>
     public class Game1 : Microsoft.Xna.Framework.Game
     {
+        
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         Texture2D white;
@@ -31,6 +33,7 @@ namespace Pong
         int rightScore;
         int lTime;
         int rTime;
+        int hitsSinceScore;
         SpriteFont score;
         SoundEffect low;
         SoundEffect high;
@@ -64,7 +67,7 @@ namespace Pong
             base.Initialize();
             lTime = 0;
             rTime = 0;
-            
+            hitsSinceScore = 0;
         }
 
         /// <summary>
@@ -98,8 +101,7 @@ namespace Pong
         /// checking for collisions, gathering input, and playing audio.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        protected override void Update(GameTime gameTime)
-        {
+        protected override void Update(GameTime gameTime) {
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
@@ -107,9 +109,10 @@ namespace Pong
             // TODO: Add your update logic here
             KeyboardState kb = Keyboard.GetState();
 
-            if (ball.Intersects(lPad)){
+            if (ball.Intersects(lPad)) {
+                hitsSinceScore++;
                 high.Play();
-                if (ball.X <= lPad.X+lPad.Width-5) {
+                if (ball.X <= lPad.X + lPad.Width - 5) {
                     yS *= -1;
                     //lTime = 15;
                     if (ball.Y < lPad.Y) {
@@ -124,15 +127,16 @@ namespace Pong
                 }
             }
 
-            if (ball.Intersects(rPad)){
+            if (ball.Intersects(rPad)) {
+                hitsSinceScore++;
                 high.Play();
-                if (ball.X+ball.Width >= rPad.X+5) {
+                if (ball.X + ball.Width >= rPad.X + 5) {
                     yS *= -1;
                     //rTime = 15;
-                    if (ball.Y<rPad.Y) {
+                    if (ball.Y < rPad.Y) {
                         ball.Y = rPad.Y - ball.Height;
-                    }else {
-                        ball.Y = rPad.Y+ rPad.Height;
+                    } else {
+                        ball.Y = rPad.Y + rPad.Height;
                     }
                 }
                 else {
@@ -143,63 +147,80 @@ namespace Pong
 
             if (kb.IsKeyDown(Keys.Down) && rPad.Y+rPad.Height < height && rTime <= 0)
             {
-                rPad.Y += 6;
+                rPad.Y += 4;
             }
             if (kb.IsKeyDown(Keys.Up) && rPad.Y > 0 && rTime <= 0)
             {
-                rPad.Y-= 6;
+                rPad.Y-= 4;
             }
-            if (kb.IsKeyDown(Keys.S) && lPad.Y + lPad.Height < height && lTime <= 0)
+            /*if (kb.IsKeyDown(Keys.S) && lPad.Y + lPad.Height < height && lTime <= 0)
             {
-                lPad.Y+= 6;
+                lPad.Y+= 4;
             }
             if (kb.IsKeyDown(Keys.W) && lPad.Y > 0 && lTime <= 0)
             {
-                lPad.Y-= 6;
+                lPad.Y-= 4;
+            *///}
+            
+            if(ball.X + (ball.Width / 2) < width / 2) {
+                if (ball.Y + (ball.Height / 2) > lPad.Y + (lPad.Height) / 2) {
+                    if (lPad.Y + lPad.Height < height) {
+                        lPad.Y += 4;
+                    }
+                }
+                else {
+                    if (lPad.Y > 0) {
+                        lPad.Y -= 4;
+                    }
+                }
             }
 
 
-
-            if(ball.X+ball.Width <= 0 || ball.X >= width)
-            {
+            if (ball.X + ball.Width <= 0 || ball.X >= width) {
                 win.Play();
-                if (ball.X >= width)
-                {
+                if (ball.X >= width) {
+                    hitsSinceScore = 0;
                     leftScore++;
-                }else
-                {
+                } else {
+                    hitsSinceScore = 0;
                     rightScore++;
                 }
-                
                 Random r = new Random();
-                if (r.Next(2) == 0)
-                {
-                    xS = r.Next(5) + 3;
+                if (r.Next(2) == 0) {
+                    xS = r.Next(6) + 2;
                     yS = r.Next(4) + 4;
-                    
-                }else
-                {
-                    xS = (r.Next(5) + 3) * -1;
+
+                } else {
+                    xS = (r.Next(6) + 2) * -1;
                     yS = r.Next(4) + 4;
-                    
+
                 }
                 ball.X = width / 2 - 10;
-                ball.Y = r.Next(height-40) +20;
-                
+                ball.Y = r.Next(height - 40) + 20;
             }
 
-            if (ball.Y <= 0 || ball.Y+ball.Height >= height)
-            {
+            if (ball.Y <= 0 || ball.Y + ball.Height >= height) {
                 low.Play();
                 yS *= -1;
             }
             ball.X += xS;
             ball.Y += yS;
-            if(rTime > 0) {
+            if (rTime > 0) {
                 rTime--;
             }
-            if(lTime > 0) {
+            if (lTime > 0) {
                 lTime--;
+            }
+            if (hitsSinceScore > 8) {
+                Random r = new Random();
+                if (r.Next(2) == 0) {
+                    xS *= 2;
+                    hitsSinceScore = 0;
+                }
+                else {
+                    hitsSinceScore = 0;
+                    yS *= 2;
+                }
             }
             base.Update(gameTime);
         }
